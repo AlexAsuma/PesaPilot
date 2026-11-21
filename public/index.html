@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PesaPilot — Fast M-Pesa &amp; Multi-Network Payments</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --card: #131a26;
+      --soft: #1b2434;
+      --line: #283449;
+      --ink: #f1f5f9;
+      --sub: #94a3b8;
+      --accent: #38bdf8;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 8px var(--ok);
+    }
+
+    .title {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.2px;
+    }
+
+    .subtitle {
+      font-size: 12.5px;
+      color: var(--sub);
+    }
+
+    .status-pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--sub);
+    }
+
+    .layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+      padding: 18px 22px;
+      max-width: 1240px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; padding: 14px; }
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-weight: 600;
+      font-size: 14.5px;
+      color: var(--ink);
+    }
+
+    .stream {
+      height: 370px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bubble {
+      max-width: 82%;
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .bubble.me {
+      align-self: flex-end;
+      background: #1d4ed8;
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bubble.agent {
+      align-self: flex-start;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      border-bottom-left-radius: 4px;
+    }
+
+    .bubble.err {
+      align-self: flex-start;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+      border-bottom-left-radius: 4px;
+    }
+
+    .bubble a, .item a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .preset {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--sub);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .preset:hover {
+      border-color: var(--accent);
+      color: var(--ink);
+    }
+
+    .bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-size: 13.5px;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: #042f2e;
+    }
+
+    button.primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    button.danger {
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+    }
+
+    button.danger:hover {
+      background: rgba(239, 68, 68, 0.16);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 11px 12px;
+    }
+
+    .stat small {
+      display: block;
+      color: var(--sub);
+      font-size: 11.5px;
+      margin-bottom: 3px;
+    }
+
+    .stat strong {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .box-list {
+      max-height: 290px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-size: 13px;
+      line-height: 1.45;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .item.PAID { border-left-color: var(--ok); }
+    .item.FAILED_FALLBACK_READY, .item.FAILED_TO_QUEUE { border-left-color: var(--warn); }
+    .item.CANCELLED { border-left-color: var(--bad); opacity: 0.72; }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .item pre {
+      margin: 6px 0 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      color: var(--sub);
+    }
+
+    .row-actions {
+      margin-top: 9px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .mini {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    details {
+      margin-top: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--sub);
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <div>
+        <div class="title">PesaPilot Payment Assistant</div>
+        <div class="subtitle">Instant M-Pesa prompts, Airtel &amp; card links, and live receipt tracking</div>
+      </div>
+    </div>
+    <div class="status-pill" id="modeStatus">Ready</div>
+  </header>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-head">
+        <span>How can we help you pay?</span>
+        <span class="subtitle" id="modelBadge">Online</span>
+      </div>
+
+      <div id="stream" class="stream">
+        <div class="bubble agent">Karibu! Tell me who to charge, the amount in KES, and the phone number — or tap one of the quick options below.</div>
+      </div>
+
+      <div class="presets">
+        <button type="button" class="preset" data-text="Charge 0726855096 KES 1 for testing PesaPilot">Pay via M-Pesa (KES 1)</button>
+        <button type="button" class="preset" data-text="Charge 0733123456 KES 5 via Airtel for event pass">Pay via Airtel / Link</button>
+        <button type="button" class="preset" data-text="Check my PayHero service wallet balance">Check Balance</button>
+      </div>
+
+      <form id="cmdForm" class="bar">
+        <input id="cmdInput" type="text" placeholder="e.g. Send an M-Pesa prompt of KES 1 to 0726855096" autocomplete="off" />
+        <button type="submit" id="runBtn" class="primary">Send</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="stats">
+        <div class="stat"><small>Payments</small><strong id="sOrders">0</strong></div>
+        <div class="stat"><small>Total Paid (KES)</small><strong id="sPaid" style="color: var(--ok);">0</strong></div>
+        <div class="stat"><small>Pending</small><strong id="sOpen" style="color: var(--warn);">0</strong></div>
+      </div>
+
+      <div class="panel-head">
+        <span>Recent Payments</span>
+        <button type="button" id="syncBtn" class="mini">Refresh</button>
+      </div>
+      <div id="ordersList" class="box-list">
+        <div class="item">No payments yet. Start a payment on the left to see it here.</div>
+      </div>
+
+      <details>
+        <summary>Activity Details (<span id="stepCount">0</span> steps)</summary>
+        <div id="stepsList" class="box-list" style="margin-top: 8px; max-height: 150px;">
+          <div class="item">No recent activity.</div>
+        </div>
+      </details>
+    </section>
+  </div>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
